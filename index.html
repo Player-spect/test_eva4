@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PNK Inmobiliaria - Propiedades en Venta y Alquiler en Coquimbo | Inicio</title>
+    <meta name="description"
+        content="Descubre propiedades en venta y alquiler en la Región de Coquimbo con PNK Inmobiliaria. Plataforma confiable para propietarios y gestores inmobiliarios.">
+    <meta name="keywords"
+        content="inmobiliaria Coquimbo, propiedades en venta La Serena, alquiler casas Región de Coquimbo, gestor inmobiliario, propietario propiedades">
+    <meta name="author" content="PNK Inmobiliaria">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="PNK Inmobiliaria - Propiedades en Coquimbo">
+    <meta property="og:description"
+        content="Plataforma para publicar y gestionar propiedades inmobiliarias en la Región de Coquimbo.">
+    <meta property="og:image" content="assets/img/casa-serena.jpg">
+    <meta property="og:url" content="https://www.pnk-inmobiliaria.cl/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="canonical" href="https://www.pnk-inmobiliaria.cl/">
+    <link rel="stylesheet" href="FrontEnd/css/styles.css">
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "RealEstateAgent",
+            "name": "PNK Inmobiliaria",
+            "description": "Plataforma para publicar y gestionar propiedades inmobiliarias en la Región de Coquimbo.",
+            "url": "https://www.pnk-inmobiliaria.cl/",
+            "address": {
+                "@type": "PostalAddress",
+                "addressRegion": "Coquimbo",
+                "addressCountry": "CL"
+            },
+            "telephone": "+56-51-123-4567"
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Saltar al contenido principal -->
+    <a href="#main-content" class="skip-link">Saltar al contenido principal</a>
+
+    <header role="banner">
+        <h1 class="title">PNK Inmobiliaria</h1>
+        <nav aria-label="Navegación principal">
+            <ul>
+                <li><a href="index.html" aria-current="page">Inicio</a></li>
+                <li><a href="FrontEnd/login.php">Iniciar Sesión</a></li>
+                <li><a href="FrontEnd/register/register-gestor.html">Registrar Gestor</a></li>
+                <li><a href="FrontEnd/register/register-propietario.html">Registrar Propietario</a></li>
+
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main-content" role="main">
+        <section aria-labelledby="bienvenida-heading">
+            <h2 id="bienvenida-heading">Bienvenido a PNK Inmobiliaria</h2>
+            <p>Plataforma para publicar y gestionar propiedades inmobiliarias en la Región de Coquimbo.</p>
+            <p>Únete como propietario o gestor inmobiliario y comienza a promocionar propiedades.</p>
+        </section>
+        <section aria-labelledby="propiedades-heading">
+            <h2 id="propiedades-heading">Propiedades Destacadas en La Serena</h2>
+            <div id="properties-container" class="propiedades-list">
+                <p>Cargando propiedades destacadas...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer role="contentinfo">
+        <p>&copy; 2026 PNK Inmobiliaria. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const container = document.getElementById('properties-container');
+
+            try {
+                // Llamamos a nuestro nuevo endpoint público
+                const response = await fetch('BackEnd/api/get_properties.php');
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    container.innerHTML = '<p>No se pudieron cargar las propiedades en este momento.</p>';
+                    return;
+                }
+
+                const propiedades = result.data;
+
+                if (propiedades.length === 0) {
+                    container.innerHTML = '<p>No hay propiedades destacadas disponibles en este momento.</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                propiedades.forEach(prop => {
+                    const imagenRuta = prop.main_image
+                        ? `/uploads/propiedades/${prop.main_image}`
+                        : 'assets/img/casa-serena.jpg';
+
+                    const fecha = new Date(prop.fecha_publicacion).toLocaleDateString('es-CL');
+
+                    const card = document.createElement('article');
+                    card.className = 'property-card';
+                    card.innerHTML = `
+                        <h3 class="property-card__title">${prop.tipo.toUpperCase()} - ${prop.sector}</h3>
+                        <div class="property-card__container">
+                            <a href="FrontEnd/property-detail.php?property=${prop.id}" class="property-card__image-link">
+                                <img src="${imagenRuta}" alt="${prop.tipo} en ${prop.sector}" class="property-card__image" loading="lazy">
+                            </a>
+                            <div class="property-card__content">
+                                <div class="property-card__info">
+                                    <div class="property-card__meta">
+                                        <span>${prop.dormitorios} dormitorios</span>
+                                        <span>${prop.banos} baños</span>
+                                        <span>${parseInt(prop.area_construida)} m²</span>
+                                        <span>${prop.comuna}</span>
+                                    </div>
+                                    <p class="property-card__description">${prop.descripcion}</p>
+                                </div>
+                                <aside class="property-card__side">
+                                    <div class="property-card__price-clp">CLP $${parseInt(prop.precio_clp).toLocaleString('es-CL')}</div>
+                                    <div class="property-card__price-uf">UF ${parseInt(prop.precio_uf).toLocaleString('es-CL')}</div>
+                                    <div class="property-card__published">Publicado: ${fecha}</div>
+                                    <div class="property-card__admin-actions">
+                                        <button type="button">Editar</button>
+                                        <button type="button" class="property-card__delete">Borrar</button>
+                                    </div>
+                                </aside>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                container.innerHTML = '<p>Error de conexión al cargar las propiedades destacadas.</p>';
+            }
+        });
+    </script>
+</body>
+
+</html>
