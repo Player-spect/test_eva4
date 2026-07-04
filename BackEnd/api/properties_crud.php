@@ -81,6 +81,10 @@ try {
                 $root_dir = dirname(__DIR__,2);
                 $upload_dir = $root_dir . '/uploads/propiedades/';
 
+		if (!is_dir($upload_dir)) {
+		        mkdir($upload_dir, 0755, true);
+			}
+
                 foreach($_FILES['fotos']['tmp_name'] as $key => $tmp_name){
                     if($_FILES['fotos']['error'][$key] === UPLOAD_ERR_OK){
                         $filename = uniqid('prop_' . $prop_id . '_') . '.jpg';
